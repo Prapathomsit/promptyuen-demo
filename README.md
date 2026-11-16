@@ -1,55 +1,30 @@
-# Prakan — เดโมฟรีสำหรับเตรียมข้อมูลแจ้งความ
+# Prakan (พร้อมยื่น)
 
-## Insurance Company · Auto platform
+A prototype that helps car and home insurance customers report an incident. The user describes what happened, and an AI model running in the browser drafts the report, checks the required documents and suggests the nearest police station in Bangkok.
 
-เพิ่ม [Underwriting Workbench และ AI-Assisted Claims](insurance/README.md): mock company database, คำนวณเบี้ย/ออกกรมธรรม์, อัปโหลดภาพ, ประเมินค่าซ่อม/ค่าสินไหม และ settlement จำลอง พร้อม Node API แบบไม่มี dependency รันด้วย `node insurance/server.mjs` แล้วเปิด `http://127.0.0.1:4188/insurance/` รายละเอียด API และ data flow อยู่ในคู่มือ โหมดภาพเริ่มต้นเป็น mock; เปิดวิเคราะห์ภาพจริงในเครื่องได้ด้วย Ollama ที่ติดตั้งเอง GitHub Pages รัน API นี้ไม่ได้
+Built by team “ส่งใจในแอร์ดรอป” for CU-TU Biztania Camp 2026 (Engineering Track, finalist).
 
-ไม่มี API key ไม่มีการเรียกบริการ AI หรือ Google Places ที่คิดค่าบริการ ข้อมูลเอกสารอยู่ในเบราว์เซอร์
+**Live demo:** https://prapathomsit.github.io/promptyuen-demo/
 
-- ร่างภาษาทางการสร้างด้วย GenAI ในเครื่อง (WebLLM/Qwen2.5) ไม่มี API key หรือค่า API ผู้ใช้ตรวจแก้และยืนยันก่อนใช้ พร้อมคำบอกเล่าเดิมและคำถามเพิ่มเติม
-- เลือกจุดยื่นเอกสารจาก **สถานีจริง 88 แห่งจากชุดข้อมูลเปิดกรุงเทพมหานคร** ในพื้นที่กรุงเทพฯ โดยคำนวณระยะเส้นตรง จุดที่เลือกถูกบันทึกในใบสรุป เป็นจุดที่ใกล้ที่สุดในชุดข้อมูล ไม่ยืนยันเขตรับผิดชอบหรือความเป็นปัจจุบัน
-- เมื่อเริ่มแจ้งเหตุ ระบบขอสิทธิ์ตำแหน่งและเลือกสถานีใกล้ที่สุดในชุดข้อมูลอัตโนมัติ ไม่แสดงพิกัดหรือหมุดผู้ใช้ แสดงแผนที่เฉพาะสถานีและมีปุ่มเปลี่ยนสถานี หากไม่ให้สิทธิ์หรืออยู่นอกกรุงเทพฯ ให้เลือกหรือระบุชื่อสถานีเอง
-- แผนที่สถานีใช้ Leaflet 1.9.4 ซึ่งโหลดเมื่อแสดงแผนที่เท่านั้น และภาพแผนที่ OpenStreetMap ผู้ให้บริการได้รับพื้นที่สถานีที่เปิดดู ไม่ได้รับเอกสาร คำบอกเล่า หรือพิกัดผู้ใช้จากการค้นหาสถานี
-- ภาพหลักฐานเก็บในเครื่อง ไม่มีการวิเคราะห์ภาพด้วย AI การอ่านบัตรด้วย OCR ยังคงใช้ไลบรารีฟรีซึ่งโหลดเมื่อใช้งาน
-- ต้องแนบและยืนยันบัตรประชาชน ใบขับขี่ ทะเบียนรถ และหลักฐานภาพ/วิดีโอก่อนส่งจำลอง กดส่งเมื่อข้อมูลไม่ครบจะแจ้งรายการที่ต้องแก้
-- ไม่มีการส่งเอกสารถึงตำรวจจริง ไม่มีเลขรับแจ้งความจริง และไม่ใช่แบบที่หน่วยงานรับรอง
+## Key points
 
-## ทดสอบ
+- The AI (Qwen2.5-3B via WebLLM) runs in the browser, so no API key is needed and personal data stays on the device. It requires a browser with WebGPU.
+- The nearest station is chosen offline from 88 Bangkok police stations (Bangkok open data).
+- The user reviews and confirms every AI draft before it is used.
+- This is a demo. Nothing is sent to the police or to an insurer.
 
-```sh
+## Tests
+
+```bash
 node --test tests/*.test.mjs
+```
+
+80 tests with no dependencies. Most are negative cases: invalid or made-up AI output, prompt injection, spoofed photos, duplicate submissions and invalid coordinates.
+
+## Run locally
+
+```bash
 python3 -m http.server 4187 --bind 127.0.0.1
 ```
 
-เปิด `http://127.0.0.1:4187/tests/submission.html` เพื่อทดสอบด้วยเอกสารและภาพสมมุติ หน้านี้เปิดได้เฉพาะ localhost
-
-GitHub Pages ใช้ main โฟลเดอร์ `/` ไม่มีขั้นตอน build
-
-ข้อมูลสถานี: https://data.bangkok.go.th/dataset/4e3324a1-99ca-40b8-8bdb-caa0982d0999/resource/1e4176a7-689c-4ed0-bce0-71225c4477fe/download/police_station.csv (ดาวน์โหลด 2 ต.ค. 2569) ใช้ชื่อ ที่อยู่ และพิกัดเท่านั้น คำนวณระยะเส้นตรงในเครื่อง ไม่มีการเรียก API
-
-### GenAI ฟรีในเบราว์เซอร์และเสียงภาษาไทย
-ใช้ WebLLM 0.2.85 กับ Qwen2.5-3B-Instruct-q4f16_1-MLC เพื่อเขียนสำนวนใหม่จากความหมายของคำบอกเล่า ไม่ใช้กฎจับคำเดิมในหน้าร่างเอกสาร ไม่ต้องมี API key หรือบัญชีบริการ ไม่มี paid fallback และไม่มีการใส่ secret ลง GitHub
-
-เมื่อผู้ใช้หยุดพูด ระบบจะเรียก Qwen และดาวน์โหลดโมเดลหลาย GB ในเบื้องหลังอัตโนมัติครั้งแรก จาก Hugging Face พร้อม runtime จาก jsDelivr/esm.run และ WebAssembly จาก MLC GitHub โมเดลทำงานใน Web Worker ผ่าน WebGPU ต้องมีหน่วยความจำ GPU ประมาณ 2.5 GB และเบราว์เซอร์ที่รองรับ จึงไม่รับรองการทำงานบนทุกมือถือ การแคชขึ้นกับเบราว์เซอร์ มีสถานะความคืบหน้าและปุ่มยกเลิก โหลดเกิน 20 นาทีหรือเรียบเรียงเกิน 3 นาทีจะหยุดและรักษาต้นฉบับไว้
-
-กดพูดแล้วหยุดเพื่อถอดเสียงและเรียก GenAI อัตโนมัติ ไม่มีปุ่มเปิดโมเดลหรือการกรอกคีย์ หน้าจอแสดงเพียงสถานะเตรียมข้อความและข้อผิดพลาดที่ต้องแก้ ร่างจะแสดงเป็นข้อความสำหรับใบสรุป และใช้ในเอกสารหลังผู้ใช้ตรวจยืนยัน ไม่ยืนยันแทนผู้ใช้ รับคำบอกเล่าไม่เกิน 1,800 ตัวอักษรต่อครั้ง ไม่ตัดข้อความเงียบ ๆ คำบอกเล่า วันเวลา และสถานที่ใช้ภายใน worker เท่านั้น การถอดเสียงของเบราว์เซอร์อาจส่งเสียงไปยังผู้ให้บริการเบราว์เซอร์
-
-ร่างจากโมเดลอาจผิดหรือเติมข้อเท็จจริงได้ แม้ prompt จะสั่งห้ามไว้ การตรวจ JSON ตรวจเฉพาะรูปแบบ ไม่รับรองความถูกต้องของข้อเท็จจริง ผู้ใช้ต้องตรวจแก้และยืนยันก่อนใช้ในใบสรุป ไม่มีการส่งเรื่องให้ตำรวจจริง หากเครื่องไม่รองรับจะแจ้งตรง ๆ ไม่เปลี่ยนไปใช้กฎจับคำแล้วแสดงว่าเป็น GenAI
-
-ทดสอบ logic ด้วย `node --test tests/*.test.mjs` และหน้า localhost `tests/submission.html?voice` (จำลองเฉพาะเสียง; GenAI ใช้โมเดลจริงและต้องดาวน์โหลด)
-เอกสาร runtime: https://webllm.mlc.ai/docs/user/get_started.html
-
-## ระบบเจ้าหน้าที่และฐานข้อมูลกลาง
-
-เพิ่มตัวเชื่อม Supabase Free ใน `assets/portal-config.js` (ค่าเริ่มต้นยังว่าง จึงยังเป็นเดโมในเครื่อง) ตั้ง Project URL และ Publishable key เดียวกับ repo https://github.com/ICEMONSER/promptyuen-officer หลังตั้งฐานข้อมูลตามคู่มือใน repo นั้น
-
-เมื่อเชื่อมแล้ว ระบบส่งคำขอ/ไฟล์ที่ผู้ยืนยันเลือกเข้า private storage รับเลข CASE จากฐานข้อมูล และแสดงสถานะจากเจ้าหน้าที่ พร้อมส่งข้อมูลเพิ่มเติมและ retry ไฟล์ที่ค้างได้ รหัสติดตามสุ่มถูกเก็บกับคำขอใน IndexedDB ไม่ใส่ไว้ใน URL คำขอไม่มีข้อมูลซ้ำเมื่อ retry ด้วยรหัสเดิม
-
-การส่งนี้เป็นการส่งถึงระบบเจ้าหน้าที่ต้นแบบ ไม่ใช่การแจ้งความกับตำรวจอย่างเป็นทางการ เว็บไม่ใช้บริการชำระเงินอัตโนมัติ ผู้ดูแลต้องสร้าง Supabase Free ก่อนจึงจะรับส่งข้ามอุปกรณ์ได้
-
-
-## หน้าตาและการแสดงผล
-
-หน้าแรกอธิบายวิธีเตรียมข้อมูลก่อนเข้าสู่พื้นที่เดิมผ่าน `#workspace` ใช้ธีมจาก `assets/theme.css` และพฤติกรรมหน้าแรกจาก `assets/landing.js` ไม่มีขั้นตอน build ปุ่มปรับหน้าจอในแถบเมนูเปลี่ยนสีหลัก ระยะห่าง ขนาดตัวอักษร และความโค้งมุมได้ทันที การปรับนี้ไม่บันทึกข้อมูลคดีและไม่ส่งข้อมูลออกเครือข่าย
-
-ภาพใน `assets/previews/` จับจากหน้าจอจริงด้วยข้อมูลสาธิต ส่วนภาพแผนที่มาจาก OpenStreetMap ตามเครดิตบนแผนที่ ไม่มีภาพหรือเครื่องหมายของเว็บไซต์อ้างอิง เอกสารบริบทและ skill อยู่ใน commit แยกจาก UI เพื่อให้เลือกเก็บได้
+Then open http://127.0.0.1:4187. The insurance workbench runs separately with `node insurance/server.mjs` (see [insurance/README.md](insurance/README.md)).
