@@ -1,4 +1,6 @@
-# Prakan (พร้อมยื่น)
+# Prakan (ประกัน)
+
+<sub>Originally called “พร้อมยื่น” during CU-TU Biztania Camp 2026.</sub>
 
 A prototype that helps car and home insurance customers report an incident. The user describes what happened, and an AI model running in the browser drafts the report, checks the required documents and suggests the nearest police station in Bangkok.
 
